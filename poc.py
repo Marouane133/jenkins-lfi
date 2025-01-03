@@ -7,8 +7,11 @@ import time
 import struct
 import re
 
-
+PADDING = b'\x00\x00'
+COMMAND = "connect-node"
+PAYLOAD = "@"
 ENCODING = "UTF-8"
+LANG = "en_US"
 END_BYTES = bytes.fromhex("0000000003")
 
 class Operation:
@@ -17,7 +20,7 @@ class Operation:
     ENC = 2
 
 def get_bytes(param, operation):
-    param_bytes = b'\x00\x00'
+    param_bytes = PADDING
     param_bytes += struct.pack(">H", len(param)+2)
     param_bytes += bytes([operation])
     param_bytes += struct.pack(">H", len(param))
@@ -26,11 +29,11 @@ def get_bytes(param, operation):
 
 
 def get_data(file_path):
-    data = get_bytes("connect-node", Operation.ARG)
-    data += get_bytes("@" + file_path, Operation.ARG)
-    data += get_bytes("UTF-8", Operation.ENC)
-    data += get_bytes("en_US", Operation.LANG)
-    data += bytes.fromhex("0000000003")
+    data = get_bytes(COMMAND, Operation.ARG)
+    data += get_bytes(PAYLOAD + file_path, Operation.ARG)
+    data += get_bytes(ENCODING, Operation.ENC)
+    data += get_bytes(LANG, Operation.LANG)
+    data += END_BYTES
     return data
 
 
